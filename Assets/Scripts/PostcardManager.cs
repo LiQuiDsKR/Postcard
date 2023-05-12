@@ -36,7 +36,8 @@ public class PostcardManager : MonoBehaviour {
 			break;
 		}
 
-		UIUpdate ();
+		UIRefresh ();
+		GameObject.Find ("System").GetComponent<GameManager> ().UIRefresh ();
 	}
 
 	void DiceHonorRand() {
@@ -54,7 +55,7 @@ public class PostcardManager : MonoBehaviour {
 		time = rand;
 	}
 
-	void UIUpdate() {
+	public void UIRefresh() {
 		switch (postType) {
 		case "Basic":
 			transform.Find ("Img").GetComponent<Image> ().sprite = Basic;
@@ -74,8 +75,6 @@ public class PostcardManager : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.Space)) {
-			DiceHonorRand ();
-		}
+		
 	}
 }

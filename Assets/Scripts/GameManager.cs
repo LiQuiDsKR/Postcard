@@ -5,35 +5,35 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
-	int myHonor = 0;
-	int mySlot = 42;
-	int myPost = 0;
-	int rewardRubble;
-	int rewardLuna;
+	public int myHonor = 0;
+	public int mySlot = 42;
+	public int myPost = 0;
+	public int myRubble = 0;
+	public int myLuna = 0;
+	public int rewardRubble;
+	public int rewardLuna;
 	float guildRankBonus;
 	float BuildingBonus;
 	float famousBonus;
+	int expandCost = 10000;
 
 	public GameObject Postcard;
+	private GameObject Content;
 	// Use this for initialization
 	void Start () {
-		
+		Content = GameObject.Find ("PostSlotContent");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.Space)) {
-			RewardCheck ();
-			UIRefresh ();
-		}
+		
 	}
 
 	void RewardCheck() {
 		myHonor = 0;
-		for (int i = 0; i < transform.childCount; i++) {
-			myHonor += transform.GetChild (i).GetComponent<PostcardManager> ().honor;
+		for (int i = 0; i < Content.transform.childCount; i++) {
+			myHonor += Content.transform.GetChild (i).GetComponent<PostcardManager> ().honor;
 		}
-		print (myHonor);
 		if (GameObject.Find ("GuildRankDropdown").GetComponent<Dropdown> ().value == 0) {
 			guildRankBonus = 1.01f;
 		} else if (GameObject.Find ("GuildRankDropdown").GetComponent<Dropdown> ().value == 1) {
@@ -46,6 +46,8 @@ public class GameManager : MonoBehaviour {
 			guildRankBonus = 1.05f;
 		} else if (GameObject.Find ("GuildRankDropdown").GetComponent<Dropdown> ().value == 5) {
 			guildRankBonus = 1.06f;
+		} else if (GameObject.Find ("GuildRankDropdown").GetComponent<Dropdown> ().value == 6) {
+			guildRankBonus = 1.0f;
 		}
 
 		if (GameObject.Find ("BuildingRankDropdown").GetComponent<Dropdown> ().value == 0) {
@@ -60,6 +62,8 @@ public class GameManager : MonoBehaviour {
 			BuildingBonus = 1.125f;
 		} else if (GameObject.Find ("BuildingRankDropdown").GetComponent<Dropdown> ().value == 5) {
 			BuildingBonus = 1.15f;
+		} else if (GameObject.Find ("BuildingRankDropdown").GetComponent<Dropdown> ().value == 6) {
+			BuildingBonus = 1.0f;
 		}
 
 		if (GameObject.Find ("FamousToggle").GetComponent<Toggle> ().isOn == true) {
@@ -69,88 +73,209 @@ public class GameManager : MonoBehaviour {
 		}
 
 		rewardRubble = (int)(myHonor * 100 * guildRankBonus * BuildingBonus * famousBonus);
-		rewardLuna = (int)Mathf.Floor(rewardRubble/42);
+		rewardLuna = (int)Mathf.Floor(rewardRubble/4200);
 	}
 
-	void UIRefresh() {
+	public void OnNextDay() {
+		myRubble += rewardRubble;
+		myLuna += rewardLuna;
 
+		List<int> removeList = new List<int>{};
+		for (int i = 0; i < Content.transform.childCount; i++) {
+			Content.transform.GetChild (i).GetComponent<PostcardManager> ().time -=1;
+			Content.transform.GetChild (i).GetComponent<PostcardManager> ().UIRefresh ();
+			if (Content.transform.GetChild (i).GetComponent<PostcardManager> ().time <= 0) {
+				removeList.Add (i);
+			}
+		}
+		for (int i = 0; i < removeList.Count; i++) {
+			GameObject.DestroyImmediate (Content.transform.GetChild (removeList [i]).gameObject);
+			for (int j = i; j < removeList.Count; j++) {
+				removeList [j] -= 1;
+			}
+		}
+		print (Content.transform.childCount);
+		UIRefresh ();
+	}
 
+	public void UIRefresh() {
+		myPost = Content.transform.childCount;
+
+		RewardCheck ();
+
+		GameObject.Find ("LunaText").GetComponent<InputField> ().text = myLuna + "";
+		GameObject.Find ("RubbleText").GetComponent<InputField> ().text = myRubble + "";
 		GameObject.Find ("PostSlotText").GetComponent<Text> ().text = myPost + "/" + mySlot;
 		GameObject.Find ("HonorText").GetComponent<Text> ().text = myHonor + "";
 		GameObject.Find ("RewardLunaText").GetComponent<Text> ().text = rewardLuna + "";
 		GameObject.Find ("RewardRubbleText").GetComponent<Text> ().text = rewardRubble + "";
 	}
 
+	public void OnEndEditLuna() {
+		myLuna = int.Parse (GameObject.Find ("LunaText").GetComponent<InputField> ().text);
+	}
+
+	public void OnEndEditRubble() {
+		myRubble = int.Parse (GameObject.Find ("RubbleText").GetComponent<InputField> ().text);
+	}
+
+	public void OnExpand() {
+		myRubble -= expandCost;
+		expandCost += 10000;
+		mySlot += 10;
+
+		UIRefresh ();
+	}
+
 	public void OnBasic() {
 		if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 0) {
-			PurchasePost("Basic");
-		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
-			for (int i = 0; i < 10; i++) {
-				PurchasePost("Basic");
+			if ((mySlot - myPost) >= 1) {
+				if (myRubble >= 2500) {
+					PurchasePost("Basic");
+					myRubble -= 2500;
+				}
 			}
+		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
+			if ((mySlot - myPost) >= 10) {
+				if (myRubble >= 25000) {
+					for (int i = 0; i < 10; i++) {
+						PurchasePost("Basic");
+						myRubble -= 2500;
+					}
+				}
+			}
+
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 2) {
-			for (int i = 0; i < 100; i++) {
-				PurchasePost("Basic");
+			if ((mySlot - myPost) >= 100) {
+				if (myRubble >= 250000) {
+					for (int i = 0; i < 100; i++) {
+						PurchasePost("Basic");
+						myRubble -= 2500;
+					}
+				}
+
 			}
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 3) {
 			for (int i = 0; i < (mySlot - myPost); i++) {
-				PurchasePost("Basic");
+				if (myRubble >= 2500) {
+					PurchasePost("Basic");
+					myRubble -= 2500;
+				}
 			}
 		}
+		UIRefresh ();
 	}
 
 	public void OnLuxury() {
 		if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 0) {
-			PurchasePost("Luxury");
-		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
-			for (int i = 0; i < 10; i++) {
-				PurchasePost("Luxury");
+			if ((mySlot - myPost) >= 1) {
+				if (myLuna >= 10) {
+					PurchasePost("Luxury");
+					myLuna -= 10;
+				}
 			}
+		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
+			if ((mySlot - myPost) >= 10) {
+				if (myLuna >= 100) {
+					for (int i = 0; i < 10; i++) {
+						PurchasePost("Luxury");
+						myLuna -= 10;
+					}
+				}
+			}
+
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 2) {
-			for (int i = 0; i < 100; i++) {
-				PurchasePost("Luxury");
+			if ((mySlot - myPost) >= 100) {
+				for (int i = 0; i < 100; i++) {
+					PurchasePost("Luxury");
+					myLuna -= 10;
+				}
 			}
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 3) {
 			for (int i = 0; i < (mySlot - myPost); i++) {
-				PurchasePost("Luxury");
+				if (myLuna >= 10) {
+					PurchasePost("Luxury");
+					myLuna -= 10;
+				}
 			}
 		}
+		UIRefresh ();
 	}
 
 	public void OnDice() {
 		if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 0) {
-			PurchasePost("Dice");
-		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
-			for (int i = 0; i < 10; i++) {
-				PurchasePost("Dice");
+			if ((mySlot - myPost) >= 1) {
+				if (myLuna >= 50) {
+					PurchasePost("Dice");
+					myLuna -= 50;
+				}
 			}
+		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
+			if ((mySlot - myPost) >= 10) {
+				if (myLuna >= 500) {
+					for (int i = 0; i < 10; i++) {
+						PurchasePost("Dice");
+						myLuna -= 50;
+					}
+				}
+			}
+
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 2) {
-			for (int i = 0; i < 100; i++) {
-				PurchasePost("Dice");
+			if ((mySlot - myPost) >= 100) {
+				if (myLuna >= 5000) {
+					for (int i = 0; i < 100; i++) {
+						PurchasePost("Dice");
+						myLuna -= 50;
+					}
+				}
 			}
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 3) {
 			for (int i = 0; i < (mySlot - myPost); i++) {
-				PurchasePost("Dice");
+				if (myLuna >= 50) {
+					PurchasePost("Dice");
+					myLuna -= 50;
+				}
 			}
 		}
+		UIRefresh ();
 	}
 
 	public void OnSurprise() {
 		if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 0) {
-			PurchasePost("Surprise");
-		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
-			for (int i = 0; i < 10; i++) {
-				PurchasePost("Surprise");
+			if ((mySlot - myPost) >= 1) {
+				if (myRubble >= 42000) {
+					PurchasePost("Surprise");
+					myRubble -= 42000;
+				}
 			}
+		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 1) {
+			if ((mySlot - myPost) >= 10) {
+				if (myRubble >= 420000) {
+					for (int i = 0; i < 10; i++) {
+						PurchasePost("Surprise");
+						myRubble -= 42000;
+					}
+				}
+			}
+
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 2) {
-			for (int i = 0; i < 100; i++) {
-				PurchasePost("Surprise");
+			if ((mySlot - myPost) >= 100) {
+				if (myRubble >= 4200000) {
+					for (int i = 0; i < 100; i++) {
+						PurchasePost("Surprise");
+						myRubble =- 42000;
+					}
+				}
 			}
 		} else if (GameObject.Find ("PostcardPurchaseDropdown").GetComponent<Dropdown> ().value == 3) {
 			for (int i = 0; i < (mySlot - myPost); i++) {
-				PurchasePost("Surprise");
+				if (myRubble >= 42000) {
+					PurchasePost("Surprise");
+					myRubble -= 42000;
+				}
 			}
 		}
+		UIRefresh ();
 	}
 
 	void PurchasePost(string type) {
