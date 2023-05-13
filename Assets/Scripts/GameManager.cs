@@ -120,11 +120,13 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void OnExpand() {
-		myRubble -= expandCost;
-		expandCost += 10000;
-		mySlot += 10;
+		if (myRubble >= expandCost) {
+			myRubble -= expandCost;
+			expandCost += 10000;
+			mySlot += 10;
 
-		UIRefresh ();
+			UIRefresh ();
+		}
 	}
 
 	public void OnBasic() {
