@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
 	float BuildingBonus;
 	float famousBonus;
 	int expandCost = 10000;
+	int dday = 0;
 
 	public GameObject Postcard;
 	private GameObject Content;
@@ -104,7 +105,9 @@ public class GameManager : MonoBehaviour {
 				removeList [j] -= 1;
 			}
 		}
-		print (Content.transform.childCount);
+
+		dday += 1;
+
 		UIRefresh ();
 	}
 
@@ -119,6 +122,7 @@ public class GameManager : MonoBehaviour {
 		GameObject.Find ("HonorText").GetComponent<Text> ().text = myHonor + "";
 		GameObject.Find ("RewardLunaText").GetComponent<Text> ().text = rewardLuna + "";
 		GameObject.Find ("RewardRubbleText").GetComponent<Text> ().text = rewardRubble + "";
+		GameObject.Find ("Dday").GetComponent<Text> ().text = "Day " + dday;
 	}
 
 	public void OnEndEditLuna() {
