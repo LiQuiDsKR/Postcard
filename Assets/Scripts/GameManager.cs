@@ -76,6 +76,16 @@ public class GameManager : MonoBehaviour {
 		rewardLuna = (int)Mathf.Floor(rewardRubble/4200);
 	}
 
+	public void OnGetLuna() {
+		myLuna += 1000;
+		UIRefresh ();
+	}
+
+	public void OnGetRubble() {
+		myRubble += 1000000;
+		UIRefresh ();
+	}
+
 	public void OnNextDay() {
 		myRubble += rewardRubble;
 		myLuna += rewardLuna;
