@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour {
 
 	public GameObject Postcard;
 	private GameObject Content;
+	public GameObject Keypad;
 	// Use this for initialization
 	void Start () {
 		Content = GameObject.Find ("PostSlotContent");
@@ -77,38 +78,44 @@ public class GameManager : MonoBehaviour {
 		rewardLuna = (int)Mathf.Floor(rewardRubble/4200);
 	}
 
-	public void OnGetLuna() {
-		myLuna += 1000;
-		UIRefresh ();
+	public void OnEditLuna() {
+		GameObject tempKeypad = Instantiate (Keypad, GameObject.Find ("Canvas").transform);
+		tempKeypad.GetComponent<KeypadManager>().parentName = "LunaText";
 	}
 
-	public void OnGetRubble() {
-		myRubble += 1000000;
-		UIRefresh ();
+	public void OnEditRubble() {
+		GameObject tempKeypad = Instantiate (Keypad, GameObject.Find ("Canvas").transform);
+		tempKeypad.GetComponent<KeypadManager>().parentName = "RubbleText";
+	}
+
+	public void OnEditPostSlot() {
+		GameObject tempKeypad = Instantiate (Keypad, GameObject.Find ("Canvas").transform);
+		tempKeypad.GetComponent<KeypadManager>().parentName = "PostSlotText";
 	}
 
 	public void OnNextDay() {
-		myRubble += rewardRubble;
-		myLuna += rewardLuna;
+		if (myPost > 0) {
+			myRubble += rewardRubble;
+			myLuna += rewardLuna;
 
-		List<int> removeList = new List<int>{};
-		for (int i = 0; i < Content.transform.childCount; i++) {
-			Content.transform.GetChild (i).GetComponent<PostcardManager> ().time -=1;
-			Content.transform.GetChild (i).GetComponent<PostcardManager> ().UIRefresh ();
-			if (Content.transform.GetChild (i).GetComponent<PostcardManager> ().time <= 0) {
-				removeList.Add (i);
+			List<int> removeList = new List<int>{};
+			for (int i = 0; i < Content.transform.childCount; i++) {
+				Content.transform.GetChild (i).GetComponent<PostcardManager> ().time -=1;
+				Content.transform.GetChild (i).GetComponent<PostcardManager> ().UIRefresh ();
+				if (Content.transform.GetChild (i).GetComponent<PostcardManager> ().time <= 0) {
+					removeList.Add (i);
+				}
 			}
-		}
-		for (int i = 0; i < removeList.Count; i++) {
-			GameObject.DestroyImmediate (Content.transform.GetChild (removeList [i]).gameObject);
-			for (int j = i; j < removeList.Count; j++) {
-				removeList [j] -= 1;
+			for (int i = 0; i < removeList.Count; i++) {
+				GameObject.DestroyImmediate (Content.transform.GetChild (removeList [i]).gameObject);
+				for (int j = i; j < removeList.Count; j++) {
+					removeList [j] -= 1;
+				}
 			}
+			dday += 1;
+
+			UIRefresh ();
 		}
-
-		dday += 1;
-
-		UIRefresh ();
 	}
 
 	public void UIRefresh() {
