@@ -9,9 +9,10 @@ public class KeypadManager : MonoBehaviour {
 	public int intFin;
 	public string parentName;
 
+	private GameManager gm;
 	// Use this for initialization
 	void Start () {
-		
+		gm = GameObject.Find("System").GetComponent<GameManager>();
 	}
 	
 	// Update is called once per frame
@@ -105,10 +106,11 @@ public class KeypadManager : MonoBehaviour {
 				strFin = strFin + "2";
 				intFin = int.Parse (strFin);
 				GameObject.Find ("System").GetComponent<GameManager> ().mySlot = intFin;
+				gm.expandCost= (gm.mySlot - 42)* 1000;
 			}
 		}
-		GameObject.Find ("System").GetComponent<GameManager> ().UIRefresh ();
-
+		
+		gm.UIRefresh ();
 		Destroy (this.gameObject);
 	}
 }
