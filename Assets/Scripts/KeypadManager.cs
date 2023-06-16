@@ -106,7 +106,7 @@ public class KeypadManager : MonoBehaviour {
 				strFin = strFin + "2";
 				intFin = int.Parse (strFin);
 				GameObject.Find ("System").GetComponent<GameManager> ().mySlot = intFin;
-				gm.expandCost= (gm.mySlot - 42)* 1000;
+				gm.expandCost = (gm.mySlot - 32)* 1000;
 			}
 		}
 		

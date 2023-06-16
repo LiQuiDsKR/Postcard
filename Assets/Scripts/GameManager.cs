@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour {
 	float guildRankBonus;
 	float BuildingBonus;
 	float famousBonus;
-	int expandCost = 10000;
+	public int expandCost = 10000;
 	int dday = 0;
 
 	public GameObject Postcard;
@@ -23,6 +23,18 @@ public class GameManager : MonoBehaviour {
 	public GameObject Keypad;
 	// Use this for initialization
 	void Start () {
+		// 현재 해상도 가져오기
+		Resolution currentResolution = Screen.currentResolution;
+
+		// 가로로 길면 데스크탑으로 판단
+		if (currentResolution.width > currentResolution.height)
+		{
+			// 화면 크기 조정
+			int targetHeight = currentResolution.height;
+			int targetWidth = Mathf.FloorToInt(targetHeight * (9f / 16f));
+			Screen.SetResolution(targetWidth, targetHeight, false);
+		}
+
 		Content = GameObject.Find ("PostSlotContent");
 	}
 	

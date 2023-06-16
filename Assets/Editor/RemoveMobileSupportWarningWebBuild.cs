@@ -1,14 +1,5 @@
-// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RemoveMobileSupportWarningWebBuild.cs">
-//   Copyright (c) 2021 Johannes Deml. All rights reserved.
-// </copyright>
-// <author>
-//   Johannes Deml
-//   public@deml.io
-// </author>
-// --------------------------------------------------------------------------------------------------------------------
 
-#if !UNITY_2020_1_OR_NEWER //Not needed anymore in 2020 and above
+//#if !UNITY_2020_1_OR_NEWER //Not needed anymore in 2020 and above
 using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -43,7 +34,27 @@ namespace Supyrb
 				Debug.Log("Removing mobile warning from " + filePath);
 				File.WriteAllText(filePath, text);
 			}
+
+			// index.html 파일 경로
+			string indexPath = Path.Combine(buildFolderPath, "index.html");
+
+			// Google Analytics 파일 경로
+			string analyticsPath = Path.Combine(Application.dataPath, "Resources/Texts/GoogleAnalytics.txt");
+
+			// 파일 읽기
+			string htmlContent = File.ReadAllText(indexPath);
+			string analyticsContent = File.ReadAllText(analyticsPath);
+
+			// 타이틀 변경
+			htmlContent = htmlContent.Replace("Unity WebGL Player | Postcard", "자분닷컴 | 엽서교환");
+
+			// <head> 태그 뒤에 내용 추가
+      		int headIndex = htmlContent.IndexOf("<head>") + "<head>".Length;
+      		htmlContent = htmlContent.Insert(headIndex, System.Environment.NewLine + analyticsContent + System.Environment.NewLine);
+
+			// 파일 쓰기
+			File.WriteAllText(indexPath, htmlContent);
 		}
 	}
 }
-#endif
+//#endif

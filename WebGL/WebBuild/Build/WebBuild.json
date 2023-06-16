@@ -1,0 +1,11 @@
+{
+"companyName": "남자분",
+"productName": "Postcard",
+"dataUrl": "WebBuild.data.unityweb",
+"asmCodeUrl": "WebBuild.asm.code.unityweb",
+"asmMemoryUrl": "WebBuild.asm.memory.unityweb",
+"asmFrameworkUrl": "WebBuild.asm.framework.unityweb",
+"TOTAL_MEMORY": 268435456,
+"splashScreenStyle": "Dark",
+"backgroundColor": "#000000"
+}
